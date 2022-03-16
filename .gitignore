@@ -1,7 +1,3 @@
-/.Trashes
-/._code.py
-/._lib
-/.fseventsd
-/.metadata_never_index
-/.vscode
+/.*
+/lib/.*
 /boot_out.txt
