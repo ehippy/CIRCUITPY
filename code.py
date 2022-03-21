@@ -81,7 +81,7 @@ while True:
     gyro_rate = gyro[1]
     gyro_angle = gyro_rate*sample_time;  
     current_angle = 0.9934*(prev_angle + gyro_angle) + 0.0066*(acc_angle)
-    print("Angles acc: {:.2f} gyro: {:.2f} time: {:.5f}".format(acc_angle, gyro_angle, sample_time))
+    # print("Angles acc: {:.2f} gyro: {:.2f} time: {:.5f}".format(acc_angle, gyro_angle, sample_time))
 
 
     error = current_angle - target_angle
@@ -93,6 +93,8 @@ while True:
     prev_angle = current_angle
 
     # end paste
+
+    print("angle: {:.2f} power: {:.2f}".format(current_angle, motor_power))
 
     ### ACCELEROMETER
     # print("Accel x: {:.2f} y: {:.2f}  z: {:.2f} ".format(acc[0], acc[1], acc[2]))
