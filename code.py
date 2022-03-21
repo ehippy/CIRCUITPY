@@ -35,7 +35,9 @@ pixel.fill(0xFFFF00)
 
 RAD_TO_DEG = 57.2958
 
-prev_time = time.monotonic() * 1000
+prev_time = time.monotonic() * 1000.0
+
+time.sleep(0.2)
 
 k_p = 10
 k_i = 40
@@ -70,7 +72,7 @@ while True:
     acc = lsm6ds33.acceleration
     gyro = lsm6ds33.gyro
 
-    current_time = time.monotonic() * 1000
+    current_time = time.monotonic() * 1000.0
     sample_time = current_time - prev_time
     prev_time = current_time
 
