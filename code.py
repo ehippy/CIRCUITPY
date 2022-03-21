@@ -33,6 +33,10 @@ pin.pull = digitalio.Pull.UP
 pixel = neopixel.NeoPixel(board.NEOPIXEL, 1, brightness=0.1)
 pixel.fill(0xFFFF00)
 
+RAD_TO_DEG = 57.2958
+
+prev_time = time.monotonic() * 1000
+
 k_p = 10
 k_i = 40
 k_d = 0.05
@@ -45,6 +49,7 @@ def constrain(val, min_val, max_val):
     return min(max_val, max(min_val, val))
 
 def drive_both_motors(steps=0):
+    steps = 1 # dont loop for now TODO, FIX or whatever
     motor1dir = stepper.BACKWARD
     motor2dir = stepper.FORWARD
 
@@ -58,38 +63,44 @@ def drive_both_motors(steps=0):
 
 while True:
     # print("Acceleration: {:.2f} {:.2f} {:.2f} m/s^2".format(*lsm6ds33.acceleration))
-    # print("Gyro: {:.2f} {:.2f} {:.2f} dps".format(*lsm6ds33.gyro))
+    # print("Gyro: {:.2f} {:.2f} {:.2f} dps".format(*lsm6ds33.gyro)) 
 
     # start paste
     
     acc = lsm6ds33.acceleration
     gyro = lsm6ds33.gyro
 
-    sample_time = 1
+    current_time = time.monotonic() * 1000
+    sample_time = current_time - prev_time
+    prev_time = current_time
 
     # calculate the angle of inclination
-    # acc_angle = math.atan2(acc[0], acc[2]) #*RAD_TO_DEG
-    # gyro_rate = gyro[1]
-    # gyro_angle = gyro_rate*sample_time;  
-    # current_angle = 0.9934*(prev_angle + gyro_angle) + 0.0066*(acc_angle)
-    
-    # error = current_angle - target_angle
-    # error_sum = error_sum + error;  
-    # error_sum = constrain(error_sum, -300, 300)
+    acc_angle = math.atan2(acc[0], acc[2]) * RAD_TO_DEG
+    gyro_rate = gyro[1]
+    gyro_angle = gyro_rate*sample_time;  
+    current_angle = 0.9934*(prev_angle + gyro_angle) + 0.0066*(acc_angle)
+    print("Angles acc: {:.2f} gyro: {:.2f} time: {:.5f}".format(acc_angle, gyro_angle, sample_time))
+
+
+    error = current_angle - target_angle
+    error_sum = error_sum + error;  
+    error_sum = constrain(error_sum, -300, 300)
     
     # #calculate output from P, I and D values
-    # motor_power = k_p*(error) + k_i*(error_sum)*sample_time - k_d*(current_angle-prev_angle)/sample_time
-    # prev_angle = current_angle
-
-    # print("Angle: {:.2f} power: {:.2f} ".format(acc[0], motor_power))
-
+    motor_power = k_p*(error) + k_i*(error_sum)*sample_time - k_d*(current_angle-prev_angle)/sample_time
+    prev_angle = current_angle
 
     # end paste
 
-    magnitude = -1
-    motor_power = acc[2] * magnitude
+    ### ACCELEROMETER
+    # print("Accel x: {:.2f} y: {:.2f}  z: {:.2f} ".format(acc[0], acc[1], acc[2]))
+    # X, vertical, negative when upright
+    # y, ROLL, side to side
+    # z, front to back, negative values when on nose
 
-    print("Angle: {:.2f} power: {:.2f} ".format(acc[2], motor_power))
+    ### GYRO
+    # print("Gyro x: {:.2f} y: {:.2f}  z: {:.2f} ".format(gyro[0], gyro[1], gyro[2]))
+    # print("Angle: {:.2f} power: {:.2f} ".format(acc[2], motor_power))
 
     if not pin.value:
         if motors_hot:
